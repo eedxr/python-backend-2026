@@ -71,20 +71,18 @@ async def test_fibonacci(params: str, status_code: int):
 
 @pytest.mark.asyncio()
 @pytest.mark.parametrize(
-    ("query", "status_code"),
+    ("json", "status_code"),
     [
-        ({}, HTTPStatus.UNPROCESSABLE_ENTITY),
-        ({"numbers": "lol"}, HTTPStatus.UNPROCESSABLE_ENTITY),
-        ({"numbers": "1,kek,3"}, HTTPStatus.UNPROCESSABLE_ENTITY),
-        ({"numbers": ""}, HTTPStatus.BAD_REQUEST),
-        ({"numbers": "1,2,3"}, HTTPStatus.OK),
-        ({"numbers": "1,2.0,3.0"}, HTTPStatus.OK),
-        ({"numbers": "1.0,2.0,3.0"}, HTTPStatus.OK),
+        (None, HTTPStatus.UNPROCESSABLE_ENTITY),
+        ([], HTTPStatus.BAD_REQUEST),
+        ([1, 2, 3], HTTPStatus.OK),
+        ([1, 2.0, 3.0], HTTPStatus.OK),
+        ([1.0, 2.0, 3.0], HTTPStatus.OK),
     ],
 )
-async def test_mean(query: dict[str, Any], status_code: int):
+async def test_mean(json: dict[str, Any] | None, status_code: int):
     async with TestClient(app) as client:
-        response = await client.get("/mean", query_string=query)
+        response = await client.get("/mean", json=json)
 
     assert response.status_code == status_code
     if status_code == HTTPStatus.OK:
